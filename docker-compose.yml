@@ -1,0 +1,38 @@
+version: '3'
+
+services:
+    nginx:
+        image: nginx:latest
+        ports:
+            - 2629:80
+        volumes:
+            - ./:/var/www
+            - ./docker/nginx/confs:/etc/nginx/conf.d
+        networks:
+            - default
+    app:
+        build:
+            context: ./docker/php
+            dockerfile: Dockerfile
+        environment:
+            - DB_CONNECTION=pgsql
+            - DB_HOST=role-event
+            - DB_PORT=5434
+        volumes:
+            - ./:/var/www
+            - ./docker/php/confs/php.ini:/usr/local/etc/php/php.ini
+        networks:
+            - default
+    database:
+        image: postgres:latest
+        container_name: role_heroes_database
+        ports:
+            - 5434:5432
+        environment:
+            - POSTGRES_DB=${DB_DATABASE}
+            - POSTGRES_USER=${DB_USERNAME}
+            - POSTGRES_PASSWORD=${DB_PASSWORD}
+        networks:
+            - default
+networks:
+    default:
