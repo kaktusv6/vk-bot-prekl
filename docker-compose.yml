@@ -15,9 +15,8 @@ services:
             context: ./docker/php
             dockerfile: Dockerfile
         environment:
-            - DB_CONNECTION=pgsql
-            - DB_HOST=role-event
-            - DB_PORT=5434
+            - DB_HOST=role_events
+            - DB_PORT=5432
         volumes:
             - ./:/var/www
             - ./docker/php/confs/php.ini:/usr/local/etc/php/php.ini
@@ -25,9 +24,9 @@ services:
             - default
     database:
         image: postgres:latest
-        container_name: role_heroes_database
+        container_name: role_events
         ports:
-            - 5434:5432
+            - ${DB_PORT}:5432
         environment:
             - POSTGRES_DB=${DB_DATABASE}
             - POSTGRES_USER=${DB_USERNAME}
