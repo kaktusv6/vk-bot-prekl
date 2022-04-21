@@ -33,5 +33,17 @@ services:
             - POSTGRES_PASSWORD=${DB_PASSWORD}
         networks:
             - default
+    queue:
+        build:
+            context: ./docker/php
+            dockerfile: queue.Dockerfile
+        environment:
+            - DB_HOST=role_events
+            - DB_PORT=5432
+        volumes:
+            - ./:/var/www
+            - ./docker/php/confs/php.ini:/usr/local/etc/php/php.ini
+        networks:
+            - default
 networks:
     default:
