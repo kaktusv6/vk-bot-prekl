@@ -2,7 +2,10 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Env;
 use Illuminate\Support\ServiceProvider;
+use VK\Client\Enums\VKLanguage;
+use VK\Client\VKApiClient;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -23,6 +26,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        $this->app->singleton(VKApiClient::class, function (): VKApiClient
+        {
+            return new VKApiClient(Env::get('VK_API'), VKLanguage::RUSSIAN);
+        });
     }
 }
