@@ -1,27 +1,6 @@
-version: '3'
+version: '3.8'
 
 services:
-    nginx:
-        image: nginx:latest
-        ports:
-            - 2629:80
-        volumes:
-            - ./:/var/www
-            - ./docker/nginx/confs:/etc/nginx/conf.d
-        networks:
-            - default
-    app:
-        build:
-            context: ./docker/php
-            dockerfile: Dockerfile
-        environment:
-            - DB_HOST=role_events
-            - DB_PORT=5432
-        volumes:
-            - ./:/var/www
-            - ./docker/php/confs/php.ini:/usr/local/etc/php/php.ini
-        networks:
-            - default
     database:
         image: postgres:latest
         container_name: role_events
@@ -33,16 +12,35 @@ services:
             - POSTGRES_PASSWORD=${DB_PASSWORD}
         networks:
             - default
-    queue:
+    app:
         build:
-            context: ./docker/php
-            dockerfile: queue.Dockerfile
+            context: .
+            dockerfile: Dockerfile
+            target: app
         environment:
             - DB_HOST=role_events
             - DB_PORT=5432
-        volumes:
-            - ./:/var/www
-            - ./docker/php/confs/php.ini:/usr/local/etc/php/php.ini
+        networks:
+            - default
+        depends_on:
+            - database
+    nginx:
+        build:
+            context: .
+            dockerfile: Dockerfile
+            target: web
+        ports:
+            - ${DEV_PORT}:80
+        networks:
+            - default
+    queue:
+        build:
+            context: .
+            dockerfile: Dockerfile
+            target: app-queue
+        environment:
+            - DB_HOST=role_events
+            - DB_PORT=5432
         networks:
             - default
 networks:
