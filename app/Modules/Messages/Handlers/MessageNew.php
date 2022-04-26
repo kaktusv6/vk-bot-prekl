@@ -3,9 +3,8 @@
 namespace App\Modules\Messages\Handlers;
 
 use App\Http\Handlers\BaseVKCallbackHandler;
-use App\Modules\Messages\Jobs\NewVkUser;
-use App\Modules\Messages\Jobs\ReplySender;
-use App\Modules\Users\Models\InternationalAgent;
+use App\Modules\Peers\Jobs\NewVkPeer;
+use App\Modules\Users\Jobs\NewVkUser;
 use Illuminate\Support\Facades\Validator;
 
 final class MessageNew extends BaseVKCallbackHandler
@@ -22,15 +21,7 @@ final class MessageNew extends BaseVKCallbackHandler
 
     public function execute(array $data): void
     {
-        $userId = $data['message']['from_id'];
-
-        NewVkUser::dispatch($userId);
-
-        $userInternationalAgent = InternationalAgent::query()
-            ->where('vk_user_id', $userId)
-            ->exists();
-
-        if ($userInternationalAgent)
-            ReplySender::dispatch($data['message']['id'], $userId, $data['message']['peer_id'], 'Это сообщение иноагента');
+        NewVkUser::dispatch($data['message']['from_id']);
+        NewVkPeer::dispatch($data['message']['peer_id']);
     }
 }

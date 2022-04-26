@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Modules\Users\Models;
+namespace App\Modules\Peers\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class VkUser extends Model
+class VkPeer extends Model
 {
     public $timestamps = true;
 }

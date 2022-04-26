@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\Messages\Jobs;
+namespace App\Modules\Users\Jobs;
 
 use App\Modules\Users\Models\VkUser;
 use Illuminate\Contracts\Queue\ShouldQueue;
