@@ -14,34 +14,44 @@ services:
             - default
     app:
         build:
-            context: .
+            context: ./docker/php
             dockerfile: Dockerfile
-            target: app
         environment:
             - DB_HOST=role_events
             - DB_PORT=5432
+        volumes:
+            - ./:/var/www
+            - ./docker/php/confs/php.ini:/usr/local/etc/php/php.ini
         networks:
             - default
         depends_on:
             - database
     nginx:
-        build:
-            context: .
-            dockerfile: Dockerfile
-            target: web
+        image: nginx:latest
         ports:
             - ${DEV_PORT}:80
+        environment:
+            - SERVER_NAME=${APP_DOMAIN}
+        volumes:
+            - ./:/var/www
+            - ./docker/nginx/confs:/etc/nginx/conf.d
         networks:
             - default
+        depends_on:
+            - app
     queue:
         build:
-            context: .
-            dockerfile: Dockerfile
-            target: app-queue
+            context: ./docker/php
+            dockerfile: queue.Dockerfile
         environment:
             - DB_HOST=role_events
             - DB_PORT=5432
+        volumes:
+            - ./:/var/www
+            - ./docker/php/confs/php.ini:/usr/local/etc/php/php.ini
         networks:
             - default
+        depends_on:
+            - app
 networks:
     default:

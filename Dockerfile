@@ -113,8 +113,6 @@ USER  www-data
 
 COPY --from=app_base --chown=www-data /opt/bots/vk-bot/.env /opt/bots/vk-bot/.env
 
-ENTRYPOINT bash -c /tmp/deploy.sh
-
 
 FROM php:8.0-alpine as app-queue
 
@@ -152,7 +150,7 @@ USER  www-data
 
 COPY --from=app_base --chown=www-data /opt/bots/vk-bot/.env /opt/bots/vk-bot/.env
 
-ENTRYPOINT bash -c /tmp/queue.sh
+CMD php artisan queue:listen --tries=3
 
 
 # We need an nginx container which can pass requests to our FPM container,
