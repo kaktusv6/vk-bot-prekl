@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Modules\Events\Commands\ReportAboutUsers;
 use App\Modules\Events\Commands\SimpleEvent;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -16,7 +17,9 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command(SimpleEvent::class)->dailyAt('10:00');
+        $schedule
+            ->command(ReportAboutUsers::class)
+            ->weeklyOn(1, '10:00');
     }
 
     /**
@@ -27,5 +30,6 @@ class Kernel extends ConsoleKernel
     protected function commands()
     {
         $this->registerCommand(app(SimpleEvent::class));
+        $this->registerCommand(app(ReportAboutUsers::class));
     }
 }
