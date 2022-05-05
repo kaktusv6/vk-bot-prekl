@@ -10,7 +10,7 @@ use Illuminate\Routing\Controller;
 
 class BotCallbackController extends Controller
 {
-    public function callback(Request $request, MapperVKCallbacksHandlers $mapperVKCallbacksHandlers): Response|JsonResponse
+    public function callback(Request $request, MapperVKCallbacksHandlers $mapperVKCallbacksHandlers): Response
     {
         $body = $request->json()->all();
         $data = $request->json()->get('object', []);
