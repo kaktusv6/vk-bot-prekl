@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Modules\Events\Commands\PeerPollsCreator;
 use App\Modules\Events\Commands\ReportAboutUsers;
 use App\Modules\Events\Commands\SimpleEvent;
 use Illuminate\Console\Scheduling\Schedule;
@@ -20,6 +21,10 @@ class Kernel extends ConsoleKernel
         $schedule
             ->command(ReportAboutUsers::class)
             ->weeklyOn(1, '10:00');
+
+        $schedule
+            ->command(PeerPollsCreator::class)
+            ->weeklyOn(4, '12:00');
     }
 
     /**
@@ -31,5 +36,6 @@ class Kernel extends ConsoleKernel
     {
         $this->registerCommand(app(SimpleEvent::class));
         $this->registerCommand(app(ReportAboutUsers::class));
+        $this->registerCommand(app(PeerPollsCreator::class));
     }
 }

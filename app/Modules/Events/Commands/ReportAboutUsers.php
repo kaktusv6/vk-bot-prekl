@@ -3,6 +3,7 @@
 namespace App\Modules\Events\Commands;
 
 use App\Modules\Peers\Models\VkPeer;
+use App\Modules\Peers\Models\VkPeerTypes;
 use App\Modules\Users\Models\UserLabel;
 use Illuminate\Console\Command;
 use Illuminate\Support\Env;
@@ -24,8 +25,14 @@ final class ReportAboutUsers extends Command
 
     public function handle(): void
     {
-        $peers = VkPeer::query()->with(['users'])->get();
-        $userLabels = UserLabel::query()->get()->pluck('name', 'id');
+        $peers = VkPeer::query()
+            ->where('type_id', VkPeerTypes::CONFERENCING)
+            ->with(['users'])
+            ->get();
+        $userLabels = UserLabel::query()
+            ->get()
+            ->pluck('name', 'id');
+
         foreach ($peers as $peer)
         {
             $reportMessage = [];

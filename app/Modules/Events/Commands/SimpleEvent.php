@@ -31,7 +31,7 @@ final class SimpleEvent extends Command
                 [
                     'peer_id' => $peer->vk_peer_id,
                     'random_id' => random_int(0, 100),
-                    'message' => 'Все привет. Это Тестовое сообщение. Не забывай рекурсию.',
+                    'message' => 'Всем привет. Это Тестовое сообщение. Не забывай рекурсию.',
                 ]
             );
         }

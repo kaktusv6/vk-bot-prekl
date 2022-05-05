@@ -1,0 +1,69 @@
+<?php
+
+namespace App\Modules\Events\Commands;
+
+use App\Http\Enums\MessageEventHandler;
+use App\Modules\Events\Models\PeerPoll;
+use App\Modules\Events\Models\PollOption;
+use Illuminate\Console\Command;
+use Illuminate\Support\Env;
+use Nette\Utils\Json;
+use VK\Client\VKApiClient;
+
+final class PeerPollsCreator extends Command
+{
+    protected $signature = 'peer-events:create-polls';
+    protected $description = 'Create and send custom poll to peers';
+
+    protected VKApiClient $apiClient;
+
+    public function __construct(VKApiClient $apiClient)
+    {
+        parent::__construct();
+
+        $this->apiClient = $apiClient;
+    }
+
+    public function handle(): void
+    {
+        $polls = PeerPoll::query()->with(['peer', 'options'])->get();
+        /** @var PeerPoll $poll */
+        foreach ($polls as $poll)
+        {
+            $keyboard = [
+                'inline' => true,
+                'buttons' => [
+                    'row_1' => [],
+                ],
+            ];
+
+            /** @var PollOption $option */
+            foreach ($poll->options as $option)
+            {
+                $keyboard['buttons']['row_1'][] = [
+                    'action' => [
+                        'type' => 'callback',
+                        'payload' => Json::encode([
+                            'handler' => MessageEventHandler::POLL_ANSWER,
+                            'data' => [
+                                'option_id' => $option->id,
+                            ],
+                        ]),
+                        'label' => $option->label,
+                    ],
+                ];
+            }
+
+            $keyboard['buttons'] = array_values($keyboard['buttons']);
+
+            $this->apiClient->messages()->send(
+                Env::get('VR_API_ACCESS_TOKEN'),
+                [
+                    'peer_id' => $poll->peer->vk_peer_id,
+                    'random_id' => random_int(0, 100),
+                    'message' => $poll->question,
+                    'keyboard' => Json::encode($keyboard),
+                ]);
+        }
+    }
+}
