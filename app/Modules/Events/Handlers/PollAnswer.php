@@ -3,12 +3,15 @@
 namespace App\Modules\Events\Handlers;
 
 use App\Http\Handlers\VKMessageEventHandler;
+use App\Modules\Events\Enums\EventActionTypes;
 use App\Modules\Events\Models\PollAnswer as PollAnswerModel;
 use App\Modules\Events\Models\PollOption;
 use App\Modules\Users\Models\VkUser;
 
-class PollAnswer implements VKMessageEventHandler
+final class PollAnswer implements VKMessageEventHandler
 {
+    private bool $isAnswerExist = false;
+
     public function handle(array $eventData, array $data): void
     {
         $pollOption = PollOption::find($data['option_id']);
@@ -30,7 +33,8 @@ class PollAnswer implements VKMessageEventHandler
             ->where('message_id', $eventData['conversation_message_id'])
             ->first();
 
-        if ($answer === null)
+        $this->isAnswerExist = $answer !== null;
+        if (!$this->isAnswerExist)
         {
             $answer = new PollAnswerModel();
             $answer->poll_id = $pollOption->poll_id;
@@ -39,5 +43,17 @@ class PollAnswer implements VKMessageEventHandler
             $answer->message_id = $eventData['conversation_message_id'];
             $answer->save();
         }
+    }
+
+    public function getActionAfterHandle(array $eventData, array $data): array
+    {
+        $text = 'Ваш голос учтен';
+        if ($this->isAnswerExist)
+            $text = 'Вы уже голосовали в текущем опросе';
+
+        return [
+            'type' => EventActionTypes::SHOW_SNACKBAR,
+            'text' => $text,
+        ];
     }
 }

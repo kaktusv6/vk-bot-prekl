@@ -5,9 +5,10 @@ namespace App\Modules\Messages\Jobs;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Support\Env;
+use Psy\Util\Json;
 use VK\Client\VKApiClient;
 
-class SendMessageEventAnswer implements ShouldQueue
+final class SendMessageEventAnswer implements ShouldQueue
 {
     use Dispatchable;
 
@@ -32,7 +33,8 @@ class SendMessageEventAnswer implements ShouldQueue
             'peer_id' => $this->peerId,
         ];
 
-        // TODO принимать action который надо выполнить после обработки события
+        if (count($this->eventData) > 0)
+            $answer['event_data'] = Json::encode($this->eventData);
 
         $apiClient->getRequest()->post('messages.sendMessageEventAnswer', Env::get('VR_API_ACCESS_TOKEN'), $answer);
     }

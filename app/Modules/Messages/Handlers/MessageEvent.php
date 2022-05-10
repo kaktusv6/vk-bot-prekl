@@ -25,9 +25,7 @@ final class MessageEvent extends BaseVKCallbackHandler
             'user_id' => ['required', 'integer'],
             'event_id' => ['required', 'string'],
             'peer_id' => ['required', 'integer'],
-            'payload' => ['required', 'array:handler,data'],
-            'payload.handler' => ['required', 'string'],
-            'payload.data' => ['required', 'array'],
+            'payload' => ['required'],
         ]);
 
         if ($validator->fails())
@@ -36,12 +34,25 @@ final class MessageEvent extends BaseVKCallbackHandler
 
     public function execute(array $data): void
     {
-        $handlerCode = $data['payload']['handler'];
-        $handlerData = $data['payload']['data'];
+        if (array_key_exists('handler', $data['payload']))
+        {
+            $handlerCode = $data['payload']['handler'];
+            $handlerData = $data['payload']['data'];
 
-        $handler = $this->mapperMessageEvents->getHandler($handlerCode);
-        $handler->handle($data, $handlerData);
+            $handler = $this->mapperMessageEvents->getHandler($handlerCode);
+            $handler->handle($data, $handlerData);
+            $eventData = $handler->getActionAfterHandle($data, $handlerData);
 
-        SendMessageEventAnswer::dispatch($data['event_id'], $data['user_id'], $data['peer_id']);
+            SendMessageEventAnswer::dispatch(
+                $data['event_id'],
+                $data['user_id'],
+                $data['peer_id'],
+                $eventData,
+            );
+        }
+        else if (array_key_exists('command', $data['payload']))
+        {
+
+        }
     }
 }

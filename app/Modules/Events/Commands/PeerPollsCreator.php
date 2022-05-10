@@ -27,6 +27,8 @@ final class PeerPollsCreator extends Command
     public function handle(): void
     {
         $polls = PeerPoll::query()->with(['peer', 'options'])->get();
+
+        $pollsToSend = [];
         /** @var PeerPoll $poll */
         foreach ($polls as $poll)
         {
@@ -56,14 +58,15 @@ final class PeerPollsCreator extends Command
 
             $keyboard['buttons'] = array_values($keyboard['buttons']);
 
-            $this->apiClient->messages()->send(
-                Env::get('VR_API_ACCESS_TOKEN'),
-                [
-                    'peer_id' => $poll->peer->vk_peer_id,
-                    'random_id' => random_int(0, 100),
-                    'message' => $poll->question,
-                    'keyboard' => Json::encode($keyboard),
-                ]);
+            $pollsToSend[] = [
+                'peer_id' => $poll->peer->vk_peer_id,
+                'random_id' => random_int(0, 100),
+                'message' => $poll->question,
+                'keyboard' => Json::encode($keyboard),
+            ];
         }
+
+        foreach ($pollsToSend as $poll)
+            $this->apiClient->messages()->send(Env::get('VR_API_ACCESS_TOKEN'), $poll);
     }
 }
