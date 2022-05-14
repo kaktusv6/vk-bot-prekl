@@ -3,17 +3,17 @@
 namespace App\Modules\Messages\Handlers;
 
 use App\Http\Handlers\BaseVKCallbackHandler;
-use App\Http\Handlers\MapperVkMessageEventHandlers;
+use App\Http\Handlers\MapperVkMessageEventCommand;
 use App\Modules\Messages\Jobs\SendMessageEventAnswer;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
 final class MessageEvent extends BaseVKCallbackHandler
 {
-    private MapperVkMessageEventHandlers $mapperMessageEvents;
+    private MapperVkMessageEventCommand $mapperMessageEvents;
 
     public function __construct(
-        MapperVkMessageEventHandlers $mapperMessageEvents,
+        MapperVkMessageEventCommand $mapperMessageEvents,
     ) {
         $this->mapperMessageEvents = $mapperMessageEvents;
     }
@@ -34,25 +34,24 @@ final class MessageEvent extends BaseVKCallbackHandler
 
     public function execute(array $data): void
     {
+        $commandCode = null;
+        // TODO ставить только command
         if (array_key_exists('handler', $data['payload']))
-        {
-            $handlerCode = $data['payload']['handler'];
-            $handlerData = $data['payload']['data'];
-
-            $handler = $this->mapperMessageEvents->getHandler($handlerCode);
-            $handler->handle($data, $handlerData);
-            $eventData = $handler->getActionAfterHandle($data, $handlerData);
-
-            SendMessageEventAnswer::dispatch(
-                $data['event_id'],
-                $data['user_id'],
-                $data['peer_id'],
-                $eventData,
-            );
-        }
+            $commandCode = $data['payload']['handler'];
         else if (array_key_exists('command', $data['payload']))
-        {
+            $commandCode = $data['payload']['command'];
 
-        }
+        $commandData = $data['payload']['data'] ?? [];
+
+        $command = $this->mapperMessageEvents->getHandler($commandCode);
+        $command->handle($data, $commandData);
+        $eventData = $command->getActionAfterHandle($data, $commandData);
+
+        SendMessageEventAnswer::dispatch(
+            $data['event_id'],
+            $data['user_id'],
+            $data['peer_id'],
+            $eventData,
+        );
     }
 }

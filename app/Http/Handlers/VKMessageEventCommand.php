@@ -2,7 +2,7 @@
 
 namespace App\Http\Handlers;
 
-interface VKMessageEventHandler
+interface VKMessageEventCommand
 {
     public function handle(array $eventData, array $data): void;
 

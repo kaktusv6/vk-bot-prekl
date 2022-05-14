@@ -2,7 +2,7 @@
 
 namespace App\Modules\Events\Commands;
 
-use App\Http\Enums\MessageEventHandler;
+use App\Http\Enums\MessageEventCommands;
 use App\Modules\Events\Models\PeerPoll;
 use App\Modules\Events\Models\PollOption;
 use Illuminate\Console\Command;
@@ -46,7 +46,7 @@ final class PeerPollsCreator extends Command
                     'action' => [
                         'type' => 'callback',
                         'payload' => Json::encode([
-                            'handler' => MessageEventHandler::POLL_ANSWER,
+                            'handler' => MessageEventCommands::POLL_ANSWER,
                             'data' => [
                                 'option_id' => $option->id,
                             ],

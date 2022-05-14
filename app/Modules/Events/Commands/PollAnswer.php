@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Modules\Events\Handlers;
+namespace App\Modules\Events\Commands;
 
-use App\Http\Handlers\VKMessageEventHandler;
+use App\Http\Handlers\VKMessageEventCommand;
 use App\Modules\Events\Enums\EventActionTypes;
 use App\Modules\Events\Models\PollAnswer as PollAnswerModel;
 use App\Modules\Events\Models\PollOption;
 use App\Modules\Users\Models\VkUser;
 
-final class PollAnswer implements VKMessageEventHandler
+final class PollAnswer implements VKMessageEventCommand
 {
     private bool $isAnswerExist = false;
 
