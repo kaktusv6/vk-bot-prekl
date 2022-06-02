@@ -18,13 +18,13 @@ abstract class VKMessageEventCommandWithDeleteAfter implements VKMessageEventCom
 
     public function end(array $eventData, array $data): void
     {
-        $isDeleteMessage = $data['payload']['delete_after_click'] ?? false;
+        $isDeleteMessage = $eventData['payload']['delete_after_click'] ?? false;
         if ($isDeleteMessage)
         {
             $this->apiClient->messages()->delete(Env::get('VR_API_ACCESS_TOKEN'), [
-                'message_ids' => (string)$data['message_id'],
+                'delete_for_all' => true,
                 'peer_id' => $eventData['peer_id'],
-                'cmids' => (string)$data['conversation_message_id'],
+                'cmids' => (string)$eventData['conversation_message_id'],
             ]);
         }
     }
