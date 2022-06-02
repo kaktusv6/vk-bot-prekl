@@ -3,20 +3,15 @@
 namespace App\Modules\Events\Commands;
 
 use App\Http\Enums\MessageEventCommands;
-use App\Http\Handlers\VKMessageEventCommand;
+use App\Http\Handlers\VKMessageEventCommandWithDeleteAfter;
 use App\Modules\Events\Models\PeerPoll;
 use App\Modules\Peers\Models\VkPeer;
 use Illuminate\Support\Env;
 use Psy\Util\Json;
 use VK\Client\VKApiClient;
 
-final class ShowPeerPolls implements VKMessageEventCommand
+final class ShowPeerPolls extends VKMessageEventCommandWithDeleteAfter
 {
-    public function __construct(
-        private VKApiClient $apiClient,
-    )
-    {}
-
     public function handle(array $eventData, array $data): void
     {
         $peerVkId = $eventData['peer_id'];
@@ -46,6 +41,7 @@ final class ShowPeerPolls implements VKMessageEventCommand
                             'type' => 'callback',
                             'payload' => Json::encode([
                                 'command' => MessageEventCommands::SHOW_COMPLETED_POLLS,
+                                'delete_after_click' => true,
                                 'data' => [
                                     'poll_id' => $poll->id,
                                 ],
@@ -63,10 +59,5 @@ final class ShowPeerPolls implements VKMessageEventCommand
                 'keyboard' => Json::encode($keyboard),
             ]);
         }
-    }
-
-    public function getActionAfterHandle(array $eventData, array $data): array
-    {
-        return [];
     }
 }

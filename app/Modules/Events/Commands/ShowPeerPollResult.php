@@ -2,20 +2,14 @@
 
 namespace App\Modules\Events\Commands;
 
-use App\Http\Handlers\VKMessageEventCommand;
+use App\Http\Handlers\VKMessageEventCommandWithDeleteAfter;
 use App\Modules\Events\Models\PollAnswer as PollAnswerModel;
 use App\Modules\Events\Models\PollOption;
 use Carbon\Carbon;
 use Illuminate\Support\Env;
-use VK\Client\VKApiClient;
 
-final class ShowPeerPollResult implements VKMessageEventCommand
+final class ShowPeerPollResult extends VKMessageEventCommandWithDeleteAfter
 {
-    public function __construct(
-        private VKApiClient $apiClient
-    )
-    {}
-
     public function handle(array $eventData, array $data): void
     {
         $peerId = $eventData['peer_id'];
@@ -47,16 +41,13 @@ final class ShowPeerPollResult implements VKMessageEventCommand
 
         if ($result->count() === 0)
             $textResult[] = 'Нет ответов по данному опросу';
+        else
+            $textResult[] = 'Все кто не ответил куколды';
 
         $this->apiClient->messages()->send(Env::get('VR_API_ACCESS_TOKEN'), [
             'peer_id' => $peerId,
             'random_id' => random_int(1, 100),
             'message' => implode("\n", $textResult),
         ]);
-    }
-
-    public function getActionAfterHandle(array $eventData, array $data): array
-    {
-        return [];
     }
 }

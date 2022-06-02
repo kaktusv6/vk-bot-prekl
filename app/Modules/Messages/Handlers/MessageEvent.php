@@ -46,6 +46,7 @@ final class MessageEvent extends BaseVKCallbackHandler
         $command = $this->mapperMessageEvents->getHandler($commandCode);
         $command->handle($data, $commandData);
         $eventData = $command->getActionAfterHandle($data, $commandData);
+        $command->end($data, $commandData);
 
         SendMessageEventAnswer::dispatch(
             $data['event_id'],

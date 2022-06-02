@@ -3,21 +3,15 @@
 namespace App\Modules\Events\Commands;
 
 use App\Http\Enums\MessageEventCommands;
-use App\Http\Handlers\VKMessageEventCommand;
+use App\Http\Handlers\VKMessageEventCommandWithDeleteAfter;
 use App\Modules\Events\Models\PeerPoll;
 use App\Modules\Events\Models\PollAnswer as PollAnswerModel;
 use Carbon\Carbon;
 use Illuminate\Support\Env;
 use Psy\Util\Json;
-use VK\Client\VKApiClient;
 
-final class ShowCompletedPolls implements VKMessageEventCommand
+final class ShowCompletedPolls extends VKMessageEventCommandWithDeleteAfter
 {
-    public function __construct(
-        private VKApiClient $apiClient
-    )
-    {}
-
     public function handle(array $eventData, array $data): void
     {
         $peerId = $eventData['peer_id'];
@@ -60,6 +54,7 @@ final class ShowCompletedPolls implements VKMessageEventCommand
                                     'poll_id' => $pollId,
                                     'message_id' => $messageId,
                                 ],
+                                'delete_after_click' => true,
                             ]),
                             'label' => 'Результаты опроса '
                                 . Carbon::createFromTimestamp($message['date'])->format('d.m.Y H:i'),
@@ -79,10 +74,5 @@ final class ShowCompletedPolls implements VKMessageEventCommand
             'message' => $message,
             'keyboard' => Json::encode($keyboard),
         ]);
-    }
-
-    public function getActionAfterHandle(array $eventData, array $data): array
-    {
-        return [];
     }
 }

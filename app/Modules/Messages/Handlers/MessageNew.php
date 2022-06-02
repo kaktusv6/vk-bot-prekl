@@ -40,6 +40,7 @@ final class MessageNew extends BaseVKCallbackHandler
                                 'type' => 'callback',
                                 'payload' => Json::encode([
                                     'command' => MessageEventCommands::SHOW_PEER_POLLS,
+                                    'delete_after_click' => true,
                                 ]),
                                 'label' => 'Показать опросы беседы',
                             ],
